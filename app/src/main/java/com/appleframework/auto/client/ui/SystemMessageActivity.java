@@ -54,12 +54,14 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 
 	private LocationManager locationManager;
 	private LocationListener locationListener;
+	private Long startTime = 0L;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_system_chat);
 		initViews();
+		startTime = System.currentTimeMillis();
 
 		//绑定账号成功，获取离线消息
 		getOfflineMessage();
@@ -119,6 +121,18 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 		sent.put("speed", String.valueOf(location.getSpeed()));
 		sent.put("direction", String.valueOf(location.getBearing()));
 		sent.put("time", String.valueOf(location.getTime()));
+		CIMPushManager.sendRequest(this, sent);
+	}
+
+	private void sentJourney() {
+		long endTime = System.currentTimeMillis();
+		long totalTime = endTime - startTime;
+		SentBody sent = new SentBody();
+		sent.setKey(CIMConstant.RequestKey.CLIENT_JOURNEY);
+		sent.put("account", this.getIntent().getStringExtra("account"));
+		sent.put("startTime", String.valueOf(startTime));
+		sent.put("endTime", String.valueOf(endTime));
+		sent.put("totalTime", String.valueOf(totalTime));
 		CIMPushManager.sendRequest(this, sent);
 	}
 
@@ -183,6 +197,7 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 	@Override
 	public void onBackPressed() {
 		this.locationManager.removeUpdates(locationListener);
+		this.sentJourney();
 		//返回登录页面，停止接受消息
 	    CIMPushManager.stop(this);
 	    Intent intent = new Intent(this, LoginActivity.class);

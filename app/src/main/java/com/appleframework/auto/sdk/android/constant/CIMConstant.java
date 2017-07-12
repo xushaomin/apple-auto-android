@@ -50,9 +50,9 @@ public interface CIMConstant {
    public static interface RequestKey{
 	   String CLIENT_BIND ="client_bind";
 	   String CLIENT_LOGOUT ="client_logout";
-	   @Deprecated
 	   String CLIENT_PULL_MESSAGE ="client_pull_message";
 	   String CLIENT_LOCATION = "client_realtime_location";
+	   String CLIENT_JOURNEY = "client_realtime_journey";
 	}
    
    
