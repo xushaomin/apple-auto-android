@@ -67,9 +67,7 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 		getOfflineMessage();
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
 		locationListener =  new LocationListener() {
-
 			@Override
 			public void onStatusChanged(String provider, int status, Bundle arg2) {}
 
