@@ -186,7 +186,7 @@ public class CIMPushManager  {
 	 * 完全销毁CIM，一般用于完全退出程序，调用resume将不能恢复
 	 * @param context
 	 */
-    public static  void destroy(Context context){
+    public static void destroy(Context context){
     	CIMCacheToolkit.getInstance(context).putBoolean(CIMCacheToolkit.KEY_CIM_DESTROYED, true);
     	CIMCacheToolkit.getInstance(context).putString(CIMCacheToolkit.KEY_ACCOUNT, null);
     	Intent serviceIntent  = new Intent(context, CIMPushService.class);

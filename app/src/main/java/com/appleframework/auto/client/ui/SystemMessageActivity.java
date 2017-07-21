@@ -37,6 +37,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.content.Context;
 
+import com.appleframework.auto.client.manager.JourneyUploadManager;
+import com.appleframework.auto.client.manager.LocationUploadManager;
 import com.appleframework.auto.sdk.android.CIMPushManager;
 import com.appleframework.auto.sdk.android.constant.CIMConstant;
 import com.appleframework.auto.sdk.android.model.Message;
@@ -52,86 +54,26 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 	protected SystemMsgListViewAdapter adapter;
 	private ArrayList<Message> list;
 
-	private LocationManager locationManager;
-	private LocationListener locationListener;
-	private Long startTime = 0L;
+	private LocationUploadManager locationUploadManager;
+	private JourneyUploadManager journeyUploadManager;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_system_chat);
 		initViews();
-		startTime = System.currentTimeMillis();
 
 		//绑定账号成功，获取离线消息
 		getOfflineMessage();
 
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		locationListener =  new LocationListener() {
-			@Override
-			public void onStatusChanged(String provider, int status, Bundle arg2) {}
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-			@Override
-			public void onProviderEnabled(String provider) {}
+		String account = this.getIntent().getStringExtra("account");
+		locationUploadManager = new LocationUploadManager(account, this, locationManager);
+		journeyUploadManager = new JourneyUploadManager(account, this, locationManager);
 
-			@Override
-			public void onProviderDisabled(String provider) {}
-
-			@Override
-			public void onLocationChanged(Location location) {
-				if(location != null) {
-					doLocation(location);
-				}
-			}
-		};
-
-		Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		if(location != null){
-			doLocation(location);
-		}
-		//监视地理位置变化
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
-	}
-
-
-	/**
-	 * 显示地理位置经度和纬度信息
-	 * @param location
-	 */
-	private void doLocation(Location location){
-		String locationStr = "维度：" + location.getLatitude() +"\n" + "经度：" + location.getLongitude();
-		showToask(locationStr);
-		sentLocation(location);
-	}
-
-	private void sentLocation(Location location) {
-		long time = location.getTime();
-		long now = System.currentTimeMillis();
-		if(Math.abs(now - time) > 10000) {
-			return;
-		}
-		SentBody sent = new SentBody();
-		sent.setKey(CIMConstant.RequestKey.CLIENT_LOCATION);
-		sent.put("account", this.getIntent().getStringExtra("account"));
-		sent.put("latitude", String.valueOf(location.getLatitude()));
-		sent.put("longitude", String.valueOf(location.getLongitude()));
-		sent.put("altitude", String.valueOf(location.getAltitude()));
-		sent.put("speed", String.valueOf(location.getSpeed()));
-		sent.put("direction", String.valueOf(location.getBearing()));
-		sent.put("time", String.valueOf(location.getTime()));
-		CIMPushManager.sendRequest(this, sent);
-	}
-
-	private void sentJourney() {
-		long endTime = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		SentBody sent = new SentBody();
-		sent.setKey(CIMConstant.RequestKey.CLIENT_JOURNEY);
-		sent.put("account", this.getIntent().getStringExtra("account"));
-		sent.put("startTime", String.valueOf(startTime));
-		sent.put("endTime", String.valueOf(endTime));
-		sent.put("totalTime", String.valueOf(totalTime));
-		CIMPushManager.sendRequest(this, sent);
+		locationUploadManager.start();
+		journeyUploadManager.start();
 	}
 
 	public void initViews() {
@@ -194,8 +136,10 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 
 	@Override
 	public void onBackPressed() {
-		this.locationManager.removeUpdates(locationListener);
-		this.sentJourney();
+		locationUploadManager.stop();
+		journeyUploadManager.sentJourney();
+		journeyUploadManager.stop();
+
 		//返回登录页面，停止接受消息
 	    CIMPushManager.stop(this);
 	    Intent intent = new Intent(this, LoginActivity.class);
