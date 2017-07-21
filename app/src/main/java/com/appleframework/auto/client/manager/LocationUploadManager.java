@@ -6,16 +6,18 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.appleframework.auto.client.app.CommonBaseControl;
 import com.appleframework.auto.sdk.android.CIMPushManager;
 import com.appleframework.auto.sdk.android.constant.CIMConstant;
 import com.appleframework.auto.sdk.android.model.SentBody;
 
 public class LocationUploadManager extends  BaseUploadManager {
 
-    public LocationUploadManager(String account, Context context, LocationManager locationManager){
+    public LocationUploadManager(String account, Context context, LocationManager locationManager, CommonBaseControl commonBaseControl){
         this.account = account;
         this.context = context;
         this.locationManager = locationManager;
+        this.commonBaseControl = commonBaseControl;
     }
 
     public void start() {
@@ -42,6 +44,8 @@ public class LocationUploadManager extends  BaseUploadManager {
 
     private void doLocation(Location location){
         sentLocation(location);
+        String locationStr = "维度：" + location.getLatitude() +"\n" + "经度：" + location.getLongitude();
+        showToask(locationStr);
     }
 
     private void sentLocation(Location location) {

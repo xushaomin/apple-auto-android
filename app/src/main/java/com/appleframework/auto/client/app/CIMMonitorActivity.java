@@ -33,7 +33,7 @@ import android.os.Bundle;
 
 public abstract class CIMMonitorActivity extends Activity implements CIMEventListener{
 
-	CommonBaseControl commonBaseControl;
+	protected CommonBaseControl commonBaseControl;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

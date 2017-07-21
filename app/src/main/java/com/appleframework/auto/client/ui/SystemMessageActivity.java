@@ -69,8 +69,8 @@ public class SystemMessageActivity extends CIMMonitorActivity implements OnClick
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 		String account = this.getIntent().getStringExtra("account");
-		locationUploadManager = new LocationUploadManager(account, this, locationManager);
-		journeyUploadManager = new JourneyUploadManager(account, this, locationManager);
+		locationUploadManager = new LocationUploadManager(account, this, locationManager, commonBaseControl);
+		journeyUploadManager = new JourneyUploadManager(account, this, locationManager, commonBaseControl);
 
 		locationUploadManager.start();
 		journeyUploadManager.start();

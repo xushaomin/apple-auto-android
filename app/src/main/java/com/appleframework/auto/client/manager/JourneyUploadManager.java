@@ -7,6 +7,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.appleframework.auto.client.app.CommonBaseControl;
 import com.appleframework.auto.sdk.android.CIMPushManager;
 import com.appleframework.auto.sdk.android.constant.CIMConstant;
 import com.appleframework.auto.sdk.android.model.SentBody;
@@ -26,10 +27,11 @@ public class JourneyUploadManager extends BaseUploadManager {
     private Integer rushTurnNO = 0; // 急转弯次数
     private Integer overSpeedNO = 0; // 超速次数
 
-    public JourneyUploadManager(String account, Context context, LocationManager locationManager){
+    public JourneyUploadManager(String account, Context context, LocationManager locationManager, CommonBaseControl commonBaseControl){
         this.account = account;
         this.context = context;
         this.locationManager = locationManager;
+        this.commonBaseControl = commonBaseControl;
     }
 
     public void start() {
@@ -72,6 +74,7 @@ public class JourneyUploadManager extends BaseUploadManager {
         if(Math.abs(now - time) > 10000) {
             return;
         }
+
         if (null == lastLocation) {
             lastLocation = location;
         }
@@ -91,6 +94,10 @@ public class JourneyUploadManager extends BaseUploadManager {
             }
 
             lastLocation = location;
+
+            String locationStr = "行程\n维度：" + location.getLatitude() +"\n" + "经度：" + location.getLongitude();
+            showToask(locationStr);
+
         }
     }
 
@@ -108,7 +115,4 @@ public class JourneyUploadManager extends BaseUploadManager {
         CIMPushManager.sendRequest(context, sent);
     }
 
-    public void stop(LocationManager locationManager) {
-        locationManager.removeUpdates(locationListener);
-    }
 }
