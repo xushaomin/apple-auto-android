@@ -21,6 +21,7 @@ public class LocationUploadManager extends  BaseUploadManager {
     }
 
     public void start() {
+        this.state = STATE_START;
         locationListener =  new LocationListener() {
             @Override
             public void onStatusChanged(String provider, int status, Bundle arg2) {}
@@ -33,6 +34,9 @@ public class LocationUploadManager extends  BaseUploadManager {
 
             @Override
             public void onLocationChanged(Location location) {
+                if (state == STATE_STOP) {
+                    return;
+                }
                 if(location != null) {
                     doLocation(location);
                 }

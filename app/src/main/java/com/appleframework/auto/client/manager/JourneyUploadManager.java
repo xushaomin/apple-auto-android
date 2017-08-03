@@ -35,6 +35,7 @@ public class JourneyUploadManager extends BaseUploadManager {
     }
 
     public void start() {
+        this.state = STATE_START;
         this.lastLocation = null;
         this.startTime = System.currentTimeMillis();
         this.endTime = 0L;
@@ -59,6 +60,9 @@ public class JourneyUploadManager extends BaseUploadManager {
 
             @Override
             public void onLocationChanged(Location location) {
+                if (state == STATE_STOP) {
+                    return;
+                }
                 if(location != null) {
                     doLocation(location);
                 }
@@ -72,11 +76,13 @@ public class JourneyUploadManager extends BaseUploadManager {
         long time = location.getTime();
         long now = System.currentTimeMillis();
         if(Math.abs(now - time) > 10000) {
+            this.lastLocation = location;
             return;
         }
 
-        if (null == lastLocation) {
-            lastLocation = location;
+        if (null == this.lastLocation) {
+            this.lastLocation = location;
+            return;
         }
         else {
 
@@ -85,15 +91,15 @@ public class JourneyUploadManager extends BaseUploadManager {
 
             //判断急加速
             if (nowSpeed - lastSpeed > 0 && nowSpeed - lastSpeed >= 10) {
-                rushUpNO ++;
+                this.rushUpNO ++;
             }
 
             //判断急减速
             if (nowSpeed - lastSpeed > 0 && nowSpeed - lastSpeed <= -10) {
-                rushSlowNO ++;
+                this.rushSlowNO ++;
             }
 
-            lastLocation = location;
+            this.lastLocation = location;
 
             String locationStr = "行程\n维度：" + location.getLatitude() +"\n" + "经度：" + location.getLongitude();
             showToask(locationStr);
