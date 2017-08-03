@@ -99,6 +99,9 @@ public class JourneyUploadManager extends BaseUploadManager {
                 this.rushSlowNO ++;
             }
 
+            //计算里程
+            mileage += getDistance(this.lastLocation, location);
+
             this.lastLocation = location;
 
             String locationStr = "行程\n维度：" + location.getLatitude() +"\n" + "经度：" + location.getLongitude();
@@ -119,6 +122,15 @@ public class JourneyUploadManager extends BaseUploadManager {
         sent.put("rushUpNO", String.valueOf(rushUpNO));
         sent.put("rushSlowNO", String.valueOf(rushSlowNO));
         CIMPushManager.sendRequest(context, sent);
+    }
+
+    private Integer getDistance(Location location1, Location location2) {
+        double lat1 = location1.getLatitude(), lon1 = location1.getLongitude();
+        double lat2 = location2.getLatitude(), lon2 = location2.getLongitude();
+        float[] results = new float[1];
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results);
+        Double result = (double)results[0];
+        return result.intValue();
     }
 
 }
